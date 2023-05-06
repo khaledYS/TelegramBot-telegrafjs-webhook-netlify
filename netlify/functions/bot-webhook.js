@@ -15,11 +15,16 @@ const token = process.env.TOKEN; // Importing the token api from .env
 app.use(cors()) // Allow different origins
 app.use(express.json()) // Parse requests to be in Json foramt (Ojbect format)
 
+// To test it
+router.get("/", (req, res)=>{
+    res.json({message: "You are ready !"})
+})
+
 /**
  * Listening only to requests on the url that ends only with our api token.
  * Since only we know the token, so only telegram who can send us msgs, not unauthorized domains.
- * Now this helps in protection.
- */
+ * tl;dr, this helps in protection.
+*/
 router.post(`/${token}`, async (req, res)=>{
     try{
         const message = req.body ;
@@ -27,9 +32,8 @@ router.post(`/${token}`, async (req, res)=>{
         res.status(200).json({body: ""}) // must return empty body, so telegram knows that we received the msg and stops to send it again.
     }catch(err){
         res.status(409).json({body:"Found an error, try again later."})
-    }
+    } 
 })
-router.get("*", (req, res)=>{res.status(200),json({body:"hi"})})
 
 app.use("/.netlify/functions/bot-webhook", router) // parsing the router under the functions url
 exports.handler = serverless(app) // Using serverless, we can forward the request from netlify functions to be handled by express.
